@@ -1,51 +1,43 @@
 package cat.itacademy.s04.t01.userapi.controllers;
 
 import cat.itacademy.s04.t01.userapi.dto.CreateUserRequest;
-import cat.itacademy.s04.t01.userapi.exceptions.UserNotFoundException;
 import cat.itacademy.s04.t01.userapi.model.User;
+import cat.itacademy.s04.t01.userapi.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private static List<User> users = new ArrayList<>();
+
+    private final UserService service;
+
+    public UserController(UserService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public List<User> getUsers() {
-        return List.copyOf(users);
+    public List<User> getUsers(@RequestParam(required = false) String name) {
+        if (name == null || name.isBlank()) {
+            return service.getAllUsers();
+        }
+        return service.searchByName(name);
     }
+
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request){
-        User newUser = User.create(request.name(), request.email());
-        users.add(newUser);
+        User newUser = service.createUser(request);
 
         return ResponseEntity.created(URI.create("/users/" + newUser.id())).body(newUser);
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable UUID id) {
-        return users.stream().filter(u -> u.id().equals(id)).findFirst()
-                .orElseThrow(() -> new UserNotFoundException(id.toString()));
+        return service.getUserById(id);
     }
-
-    @GetMapping(params = "name")
-    public List<User> getUsersByName(@RequestParam String name) {
-        String lowerName = name.toLowerCase();
-        return users.stream()
-                .filter(u -> u.name().toLowerCase().contains(lowerName))
-                .toList();
-    }
-
-    static void clearUsers(){
-        users.clear();
-    }
-
-
 }
