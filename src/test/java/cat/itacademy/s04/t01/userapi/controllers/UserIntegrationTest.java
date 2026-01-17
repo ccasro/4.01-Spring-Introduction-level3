@@ -3,7 +3,6 @@ package cat.itacademy.s04.t01.userapi.controllers;
 import cat.itacademy.s04.t01.userapi.dto.CreateUserRequest;
 import cat.itacademy.s04.t01.userapi.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,11 +24,6 @@ public class UserIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setup(){
-        UserController.clearUsers();
-    }
 
     @Test
     void getUsers_returnsEmptyListInitially() throws Exception{
